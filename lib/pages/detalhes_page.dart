@@ -1,49 +1,74 @@
 import 'package:flutter/material.dart';
 
-// Página que apresenta os detalhes da espécie.
+// Página responsável por mostrar os detalhes
+// de uma espécie de abelha.
 //
-// StatefulWidget é utilizado porque essa tela possui
-// uma informação que pode mudar durante a execução:
-// o estado de favorito.
+// É StatefulWidget porque possui um estado
+// que pode mudar: favorito ou não favorito.
 class DetalhesPage extends StatefulWidget {
-  const DetalhesPage({super.key});
+  // Nome popular recebido da tela inicial.
+  final String nome;
+
+  // Nome científico recebido da tela inicial.
+  final String nomeCientifico;
+
+  // Descrição recebida da tela inicial.
+  final String descricao;
+
+  // Informa se a espécie já estava favoritada
+  // quando a página foi aberta.
+  final bool favoritoInicial;
+
+  // Função utilizada para avisar a HomePage
+  // quando o estado do favorito mudar.
+  final ValueChanged<bool> onFavoritoAlterado;
+
+  const DetalhesPage({
+    super.key,
+    required this.nome,
+    required this.nomeCientifico,
+    required this.descricao,
+    required this.favoritoInicial,
+    required this.onFavoritoAlterado,
+  });
 
   @override
-  State<DetalhesPage> createState() =>
-      _DetalhesPageState();
+  State<DetalhesPage> createState() => _DetalhesPageState();
 }
 
-// Classe responsável por armazenar e controlar
-// o estado da página DetalhesPage.
+// Classe responsável pelo estado da página.
 class _DetalhesPageState extends State<DetalhesPage> {
+  // Variável que armazena o estado atual do favorito.
+  late bool favorito;
 
-  // Variável que indica se a espécie
-  // está marcada como favorita.
-  //
-  // Começa como false (não favoritada).
-  bool favorito = false;
+  // initState é executado uma vez
+  // quando a página é criada.
+  @override
+  void initState() {
+    super.initState();
+
+    // O estado começa com o valor recebido
+    // da HomePage.
+    favorito = widget.favoritoInicial;
+  }
 
   @override
   Widget build(BuildContext context) {
-
-    // Scaffold cria a estrutura principal da página.
     return Scaffold(
-
-      // Barra superior da tela.
+      // Barra superior.
       appBar: AppBar(
-        title: const Text('Jataí'),
+        title: Text(widget.nome),
       ),
 
-      // Conteúdo principal.
+      // Conteúdo principal da página.
       body: Padding(
         padding: const EdgeInsets.all(20),
 
-        // Column organiza os elementos verticalmente.
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
 
-            // Emoji utilizado como representação da espécie.
+          children: [
+            // Representação visual da abelha.
             const Center(
               child: Text(
                 '🐝',
@@ -51,22 +76,21 @@ class _DetalhesPageState extends State<DetalhesPage> {
               ),
             ),
 
-            // Espaçamento entre elementos.
             const SizedBox(height: 20),
 
             // Nome popular.
-            const Text(
-              'Jataí',
-              style: TextStyle(
+            Text(
+              widget.nome,
+              style: const TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
               ),
             ),
 
             // Nome científico.
-            const Text(
-              'Tetragonisca angustula',
-              style: TextStyle(
+            Text(
+              widget.nomeCientifico,
+              style: const TextStyle(
                 fontSize: 18,
                 fontStyle: FontStyle.italic,
               ),
@@ -74,54 +98,41 @@ class _DetalhesPageState extends State<DetalhesPage> {
 
             const SizedBox(height: 20),
 
-            // Texto com uma breve descrição da espécie.
-            const Text(
-              'A Jataí é uma abelha sem ferrão amplamente '
-              'distribuída no Brasil. É conhecida pelo pequeno '
-              'tamanho e pela importância na polinização.',
-              style: TextStyle(
+            // Descrição da espécie.
+            Text(
+              widget.descricao,
+              style: const TextStyle(
                 fontSize: 16,
               ),
             ),
 
             const SizedBox(height: 30),
 
-            // Centraliza o botão de favorito.
+            // Botão de favorito.
             Center(
-
-              // ElevatedButton.icon cria um botão
-              // contendo texto e ícone.
               child: ElevatedButton.icon(
-
-                // onPressed é executado quando
-                // o usuário toca no botão.
+                // onPressed captura o toque.
                 onPressed: () {
-
-                  // setState informa ao Flutter que
-                  // alguma informação da interface mudou.
-                  //
-                  // Depois disso, o Flutter executa
-                  // novamente o método build().
+                  // Atualiza o estado da página.
                   setState(() {
-
-                    // O operador ! inverte o valor booleano.
-                    //
-                    // false -> true
-                    // true  -> false
                     favorito = !favorito;
                   });
+
+                  // Informa à HomePage que o
+                  // estado do favorito foi alterado.
+                  widget.onFavoritoAlterado(
+                    favorito,
+                  );
                 },
 
-                // O ícone mostrado depende
-                // do valor da variável favorito.
+                // O ícone muda conforme o estado.
                 icon: Icon(
                   favorito
                       ? Icons.favorite
                       : Icons.favorite_border,
                 ),
 
-                // O texto do botão também muda
-                // conforme o estado da variável.
+                // O texto também muda conforme o estado.
                 label: Text(
                   favorito
                       ? 'Favoritada'
