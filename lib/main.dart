@@ -338,7 +338,7 @@ class _HomePageState extends State<HomePage> {
 
             // Expanded permite que os textos utilizem
             // o espaço disponível dentro da linha.
-            child: Expanded(
+             Expanded(
               // Column organiza os elementos verticalmente.
               child: Column(
                 // Alinha os textos à esquerda.
