@@ -76,7 +76,7 @@ class SobrePage extends StatelessWidget {
             // Explica o objetivo acadêmico do projeto.
             const Text(
               'O BeeCatalog foi desenvolvido como atividade prática '
-              'da disciplina de Desenvolvimento Mobile. O aplicativo '
+              'da disciplina de Programação de Software e Aplicativos II. O aplicativo '
               'demonstra conceitos básicos do desenvolvimento '
               'multiplataforma utilizando Flutter e Dart.',
               style: TextStyle(
