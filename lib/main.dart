@@ -1,84 +1,269 @@
+// Importa o pacote principal do Flutter.
+// Esse pacote traz os widgets que usamos para criar a interface do aplicativo.
 import 'package:flutter/material.dart';
 
-// Importa a página responsável por mostrar
-// os detalhes de cada espécie.
+// Importa a página que mostra os detalhes de cada espécie de abelha.
 import 'pages/detalhes_page.dart';
 
-// Importa a página responsável por mostrar
-// os detalhes sobre o app.
-
+// Importa a página que mostra informações sobre o BeeCatalog.
 import 'pages/sobre_page.dart';
 
-// Função principal do programa.
-// Todo aplicativo Dart começa pela função main().
+
+
+// FUNÇÃO PRINCIPAL
+
+
+// Todo programa em Dart começa pela função main().
 void main() {
-  // runApp inicia a aplicação Flutter.
+  // runApp() inicia o aplicativo Flutter.
+  // Aqui estamos dizendo:
+  // "Flutter, comece o aplicativo usando BeeCatalogApp".
   runApp(const BeeCatalogApp());
 }
 
-// Widget principal do aplicativo.
-//
-// É um StatelessWidget porque as configurações
-// gerais da aplicação não mudam durante a execução.
+
+
+// APLICATIVO PRINCIPAL
+
+
+
+// Ela é um StatelessWidget porque as configurações principais
+// do aplicativo não precisam mudar enquanto ele está funcionando.
 class BeeCatalogApp extends StatelessWidget {
+  // Construtor da classe.
   const BeeCatalogApp({super.key});
 
+  // O método build() é responsável por montar a interface.
   @override
   Widget build(BuildContext context) {
-    // MaterialApp configura a estrutura geral do aplicativo.
+    // MaterialApp cria a estrutura geral de um aplicativo
+    // seguindo o padrão visual Material Design.
     return MaterialApp(
-      // Remove a faixa "DEBUG" do canto da tela.
+      // Remove a faixa vermelha escrita "DEBUG"
+      // que normalmente aparece no canto da tela.
       debugShowCheckedModeBanner: false,
 
       // Define o nome do aplicativo.
       title: 'BeeCatalog',
 
-      // Define a primeira tela exibida.
+      // Define qual será a primeira tela exibida
+      // quando o aplicativo for aberto.
       home: const HomePage(),
     );
   }
 }
 
-// A HomePage é StatefulWidget porque precisa
-// armazenar quais espécies foram marcadas como favoritas.
+
+
+// TELA INICIAL
+
+
+// HomePage representa a tela inicial do aplicativo.
+// Ela é um StatefulWidget porque existem informações
+// nessa tela que podem mudar.
+// Por exemplo:
+
+// 1. Uma abelha pode ser favoritada ou desfavoritada.
+
+// 2. O usuário pode digitar alguma coisa no campo de pesquisa.
+
+// Quando esses valores mudam, a tela precisa ser atualizada.
 class HomePage extends StatefulWidget {
+  // Construtor da HomePage.
   const HomePage({super.key});
 
+  // Cria o objeto que será responsável
+  // por guardar e controlar o estado da tela.
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
-// Classe responsável por controlar
-// o estado da HomePage.
+
+
+// ESTADO DA TELA INICIAL
+
+
+// Esta classe guarda todas as informações
+// que podem mudar dentro da HomePage.
 class _HomePageState extends State<HomePage> {
-  // Set utilizado para armazenar os nomes
-  // das espécies marcadas como favoritas.
-  //
-  // Set não permite valores duplicados.
+  
+
+  // FAVORITOS
+  
+
+  // Cria um conjunto chamado favoritos.
+  // Um Set é parecido com uma lista,
+  // mas ele não permite valores repetidos.
+  // Aqui guarda os nomes das abelhas favoritadas.
+  
+  // Exemplo:
+  
+  // favoritos = {'Jataí', 'Iraí'}
   final Set<String> favoritos = {};
 
-  // Função responsável por adicionar ou remover
-  // uma espécie da lista de favoritos.
-  void _alterarFavorito(String nome, bool favorito) {
-    // setState informa ao Flutter que os dados
-    // da tela foram alterados e a interface precisa
-    // ser reconstruída.
+
+
+  // PESQUISA
+  
+
+  // Guarda o texto que o usuário digitou
+  // dentro do campo de pesquisa.
+  // No início ele está vazio.
+  String pesquisa = '';
+
+
+  // FUNÇÃO PARA NORMALIZAR O TEXTO
+  
+
+  // Esta função prepara um texto para ser pesquisado.
+  // Ela transforma todas as letras em minúsculas
+  // e também remove alguns acentos.
+
+  // Isso permite, por exemplo:
+  
+  // Usuário digita: atai
+  // Aplicativo encontra:Jataí
+  //
+  // Mesmo que o usuário não tenha colocado o acento.
+
+  String _normalizarTexto(String texto) {
+    // Primeiro transforma tudo em letras minúsculas.
+    return texto
+        .toLowerCase()
+
+        // Depois substitui letras com acento
+        // pelas mesmas letras sem acento.
+        .replaceAll('á', 'a')
+        .replaceAll('à', 'a')
+        .replaceAll('ã', 'a')
+        .replaceAll('â', 'a')
+        .replaceAll('ä', 'a')
+        .replaceAll('é', 'e')
+        .replaceAll('è', 'e')
+        .replaceAll('ê', 'e')
+        .replaceAll('ë', 'e')
+        .replaceAll('í', 'i')
+        .replaceAll('ì', 'i')
+        .replaceAll('î', 'i')
+        .replaceAll('ï', 'i')
+        .replaceAll('ó', 'o')
+        .replaceAll('ò', 'o')
+        .replaceAll('õ', 'o')
+        .replaceAll('ô', 'o')
+        .replaceAll('ö', 'o')
+        .replaceAll('ú', 'u')
+        .replaceAll('ù', 'u')
+        .replaceAll('û', 'u')
+        .replaceAll('ü', 'u')
+        .replaceAll('ç', 'c');
+  }
+
+
+  
+  // FUNÇÃO QUE VERIFICA A PESQUISA
+  
+
+  // Esta função verifica se uma determinada abelha
+  // combina com aquilo que o usuário pesquisou.
+
+  // A pesquisa funciona usando:
+  //
+  // 1. Nome popular.
+  // 2. Nome científico.
+  //
+  // Por exemplo:
+  //
+  // "Jataí"
+  // "Tetragonisca"
+  //
+  // Os dois podem encontrar a mesma abelha.
+  bool _correspondePesquisa(
+    String nome,
+    String nomeCientifico,
+  ) {
+    // Normaliza o texto digitado pelo usuário.
+    //
+    // Exemplo:
+    //
+    // "JATAÍ" vira "jatai".
+    final String termoPesquisado = _normalizarTexto(pesquisa);
+
+    // Normaliza o nome popular da abelha.
+    final String nomeNormalizado = _normalizarTexto(nome);
+
+    // Normaliza o nome científico.
+    final String nomeCientificoNormalizado =
+        _normalizarTexto(nomeCientifico);
+
+    // contains() pergunta:
+    //
+    // "Este texto contém aquilo que foi pesquisado?"
+    //
+    // O símbolo || significa "OU".
+    //
+    // Então a função retorna verdadeiro se:
+    //
+    // o nome popular combinar
+    //
+    // OU
+    //
+    // o nome científico combinar.
+    return nomeNormalizado.contains(termoPesquisado) ||
+        nomeCientificoNormalizado.contains(termoPesquisado);
+  }
+
+
+  
+  // FUNÇÃO PARA FAVORITAR OU DESFAVORITAR
+
+
+  // Esta função recebe:
+  //
+  // nome = nome da abelha.
+  //
+  // favorito = true ou false.
+  //
+  // true significa que a abelha deve ficar favoritada.
+  //
+  // false significa que ela deve deixar de ser favorita.
+  void _alterarFavorito(
+    String nome,
+    bool favorito,
+  ) {
+    // setState() avisa ao Flutter:
+    //
+    // "Alguma informação mudou.
+    // Reconstrua a tela para mostrar essa mudança."
     setState(() {
+      // Verifica se favorito é verdadeiro.
       if (favorito) {
-        // Adiciona a espécie aos favoritos.
+        // Se for verdadeiro,
+        // adicionamos a abelha ao conjunto de favoritos.
         favoritos.add(nome);
       } else {
-        // Remove a espécie dos favoritos.
+        // Se for falso,
+        // removemos a abelha do conjunto.
         favoritos.remove(nome);
       }
     });
   }
 
-  // Função reutilizável responsável
-  // por criar os cards das espécies.
+
+  
+  // FUNÇÃO QUE CRIA OS CARDS DAS ABELHAS
+  
+
+  // Esta função cria um card de abelha.
   //
-  // Isso evita repetir o mesmo código
-  // três vezes para espécies diferentes.
+  // Nós criamos uma função reutilizável para não precisar
+  // escrever praticamente o mesmo código várias vezes.
+  //
+  // Para criar cada card precisamos informar:
+  //
+  // nome;
+  // nome científico;
+  // descrição;
+  // imagem.
   Widget _criarCardAbelha({
     required BuildContext context,
     required String nome,
@@ -86,38 +271,56 @@ class _HomePageState extends State<HomePage> {
     required String descricao,
     required String imagem,
   }) {
-    // Verifica se essa espécie está favoritada.
+    // Verifica se o nome da abelha está
+    // dentro do conjunto de favoritos.
+    //
+    // O resultado será true ou false.
     final bool estaFavorita = favoritos.contains(nome);
 
-    // Card cria um elemento visual semelhante
-    // a um cartão.
+    // Card cria um elemento visual parecido
+    // com um cartão.
     return Card(
       // Cria um espaço abaixo de cada card.
       margin: const EdgeInsets.only(bottom: 12),
 
-      // Faz com que o conteúdo respeite
-      // as bordas arredondadas do card.
+      // Faz com que elementos internos,
+      // como a imagem, respeitem as bordas do card.
       clipBehavior: Clip.antiAlias,
 
+      // Padding cria um espaço interno.
       child: Padding(
-        // Espaçamento interno do card.
+        // Cria 12 pixels de espaço
+        // entre o conteúdo e as bordas do card.
         padding: const EdgeInsets.all(12),
 
-        // Row organiza os elementos horizontalmente.
+        // Row organiza seus elementos
+        // horizontalmente.
+        //
+        // Neste caso:
+        //
+        // imagem -> textos -> coração -> seta.
         child: Row(
           children: [
-            // ClipRRect permite deixar
-            // as bordas da imagem arredondadas.
+           
+            // IMAGEM DA ABELHA
+            
+
+            // ClipRRect permite criar bordas arredondadas
+            // na imagem.
             ClipRRect(
+              // Define o arredondamento.
               borderRadius: BorderRadius.circular(10),
 
               // Image.asset carrega uma imagem
-              // salva dentro do próprio projeto.
+              // que está salva dentro da pasta assets.
               child: Image.asset(
+                // Caminho da imagem.
                 imagem,
 
-                // Define o tamanho da imagem.
+                // Largura da imagem.
                 width: 75,
+
+                // Altura da imagem.
                 height: 75,
 
                 // Faz a imagem preencher o espaço
@@ -126,31 +329,44 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
 
-            // Espaçamento entre a imagem e o texto.
+            // Cria espaço entre a imagem e os textos.
             const SizedBox(width: 16),
 
-            // Expanded faz o conteúdo ocupar
-            // o espaço restante da linha.
-            Expanded(
+           
+            // TEXTOS DO CARD
+           
+
+            // Expanded permite que os textos utilizem
+            // o espaço disponível dentro da linha.
+            child: Expanded(
+              // Column organiza os elementos verticalmente.
               child: Column(
                 // Alinha os textos à esquerda.
                 crossAxisAlignment: CrossAxisAlignment.start,
 
                 children: [
-                  // Exibe o nome popular da espécie.
+                  // Mostra o nome popular.
                   Text(
                     nome,
+
+                    // Configura o estilo do nome.
                     style: const TextStyle(
+                      // Define o tamanho da letra.
                       fontSize: 20,
+
+                      // Deixa o nome em negrito.
                       fontWeight: FontWeight.bold,
                     ),
                   ),
 
+                  // Pequeno espaço entre os dois nomes.
                   const SizedBox(height: 3),
 
-                  // Exibe o nome científico.
+                  // Mostra o nome científico.
                   Text(
                     nomeCientifico,
+
+                    // Nome científico aparece em itálico.
                     style: const TextStyle(
                       fontStyle: FontStyle.italic,
                     ),
@@ -159,41 +375,62 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
 
-            // Se a espécie estiver favoritada,
-            // exibe um coração no card.
+            
+            // ÍCONE DE FAVORITO
+           
+
+            // Só mostra o coração se a abelha
+            // estiver favoritada.
             if (estaFavorita)
               const Icon(
+                // Ícone de coração preenchido.
                 Icons.favorite,
+
+                // Tamanho do coração.
                 size: 20,
               ),
 
-            // Botão responsável por abrir
-            // a página de detalhes.
+            
+            // BOTÃO PARA ABRIR OS DETALHES
+            
+
+            // IconButton cria um botão usando um ícone.
             IconButton(
-              // onPressed captura o toque do usuário.
+              // onPressed é executado quando
+              // o usuário toca no botão.
               onPressed: () {
-                // Navigator.push abre uma nova página.
+                // Navigator.push abre uma nova tela
+                // sem fechar a tela atual.
                 Navigator.push(
                   context,
 
-                  // MaterialPageRoute define
-                  // qual página será exibida.
+                  // MaterialPageRoute informa
+                  // qual página deve ser aberta.
                   MaterialPageRoute(
+                    // Cria a página DetalhesPage.
                     builder: (context) => DetalhesPage(
-                      // Envia os dados da espécie
-                      // para a página de detalhes.
+                      // Envia o nome popular.
                       nome: nome,
+
+                      // Envia o nome científico.
                       nomeCientifico: nomeCientifico,
+
+                      // Envia a descrição.
                       descricao: descricao,
+
+                      // Envia a imagem.
                       imagem: imagem,
 
-                      // Informa se a espécie
-                      // já está favoritada.
+                      // Informa se a abelha já estava favorita
+                      // antes de abrir a página.
                       favoritoInicial: estaFavorita,
 
-                      // Recebe de volta o novo estado
-                      // do favorito.
+                      // Essa função será chamada quando
+                      // o usuário favoritar ou desfavoritar
+                      // a abelha na página de detalhes.
                       onFavoritoAlterado: (novoValor) {
+                        // Atualiza o favorito
+                        // também na tela inicial.
                         _alterarFavorito(
                           nome,
                           novoValor,
@@ -204,7 +441,7 @@ class _HomePageState extends State<HomePage> {
                 );
               },
 
-              // Ícone que representa a navegação.
+              // Mostra uma pequena seta para a direita.
               icon: const Icon(
                 Icons.arrow_forward_ios,
               ),
@@ -215,114 +452,247 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+
+
+  // CONSTRUÇÃO DA TELA
+  
+
+  // build() monta tudo aquilo que aparece
+  // visualmente na HomePage.
   @override
   Widget build(BuildContext context) {
-    // Scaffold fornece a estrutura principal
+    // Scaffold fornece a estrutura básica
     // de uma tela Flutter.
     return Scaffold(
-      // Barra superior da página.
-      // Barra superior da tela inicial.
-appBar: AppBar(
-  // Título do aplicativo.
-  title: const Text('🐝 BeeCatalog'),
+      
+      // BARRA SUPERIOR
+      
 
-  // actions permite adicionar botões
-  // no lado direito da AppBar.
-  actions: [
-    // Botão responsável por abrir
-    // a página "Sobre o BeeCatalog".
-    IconButton(
-      // Ícone de informação.
-      icon: const Icon(
-        Icons.info_outline,
+      // AppBar cria a barra superior da tela.
+      appBar: AppBar(
+        // Mostra o nome do aplicativo.
+        title: const Text(
+          '🐝 BeeCatalog',
+        ),
+
+        // actions permite colocar botões
+        // no lado direito da AppBar.
+        actions: [
+          // Botão de informações.
+          IconButton(
+            // Mostra o ícone de informação.
+            icon: const Icon(
+              Icons.info_outline,
+            ),
+
+            // Texto exibido quando o usuário
+            // mantém o cursor sobre o botão.
+            tooltip: 'Sobre',
+
+            // Executado quando o botão é pressionado.
+            onPressed: () {
+              // Abre a página SobrePage.
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      const SobrePage(),
+                ),
+              );
+            },
+          ),
+        ],
       ),
 
-      // Texto mostrado caso o usuário
-      // mantenha o cursor/toque sobre o botão.
-      tooltip: 'Sobre',
 
-      // onPressed captura o clique/toque.
-      onPressed: () {
-        // Navigator.push realiza a navegação
-        // para a página SobrePage.
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) =>
-                const SobrePage(),
-          ),
-        );
-      },
-    ),
-  ],
-),
+   
+      // CONTEÚDO DA TELA
+     
 
-      // ListView organiza os elementos verticalmente
-      // e permite rolagem caso o conteúdo seja maior
-      // que a tela.
+      // ListView organiza os elementos
+      // verticalmente.
+      //
+      // Ela também permite rolar a tela
+      // caso o conteúdo seja maior que o celular.
       body: ListView(
-        // Espaçamento entre o conteúdo
+        // Cria espaço entre o conteúdo
         // e as bordas da tela.
         padding: const EdgeInsets.all(16),
 
         children: [
-          // Título principal da tela.
+          
+          // TÍTULO
+          
+
+          // Mostra o título principal.
           const Text(
             'Conheça as abelhas brasileiras',
+
+            // Configura o estilo do título.
             style: TextStyle(
+              // Tamanho da letra.
               fontSize: 22,
+
+              // Deixa o texto em negrito.
               fontWeight: FontWeight.bold,
             ),
           ),
 
-          // Espaçamento entre o título e os cards.
-          const SizedBox(height: 20),
+          // Espaço abaixo do título.
+          const SizedBox(height: 16),
 
-          // Card da espécie Jataí.
-          _criarCardAbelha(
-            context: context,
-            nome: 'Jataí',
-            nomeCientifico: 'Tetragonisca angustula',
 
-            // Caminho da imagem dentro do projeto.
-            imagem: 'assets/images/jatai.webp',
+          
+          // CAMPO DE PESQUISA
+         
 
-            descricao:
-                'A Jataí é uma abelha sem ferrão amplamente '
-                'distribuída no Brasil. É conhecida pelo pequeno '
-                'tamanho e pela importância na polinização.',
+          // TextField permite que o usuário
+          // digite alguma coisa.
+          TextField(
+            // Configura a aparência do campo.
+            decoration: InputDecoration(
+              // Texto que aparece quando
+              // o campo ainda está vazio.
+              hintText: 'Pesquisar abelha...',
+
+              // Mostra uma lupa do lado esquerdo.
+              prefixIcon: const Icon(
+                Icons.search,
+              ),
+
+              // Define a borda do campo.
+              border: OutlineInputBorder(
+                // Deixa os cantos arredondados.
+                borderRadius: BorderRadius.circular(14),
+              ),
+
+              // Define o espaço interno do campo.
+              contentPadding:
+                  const EdgeInsets.symmetric(
+                // Espaço horizontal.
+                horizontal: 16,
+
+                // Espaço vertical.
+                vertical: 12,
+              ),
+            ),
+
+            // onChanged é chamado toda vez
+            // que o usuário digita ou apaga uma letra.
+            onChanged: (valorDigitado) {
+              // setState avisa que alguma informação mudou.
+              setState(() {
+                // Guarda o novo texto na variável pesquisa.
+                pesquisa = valorDigitado;
+              });
+            },
           ),
 
-          // Card da espécie Mandaçaia.
-          _criarCardAbelha(
-            context: context,
-            nome: 'Mandaçaia',
-            nomeCientifico: 'Melipona quadrifasciata',
+          // Espaço entre a pesquisa e os cards.
+          const SizedBox(height: 16),
 
-            // Caminho da imagem dentro do projeto.
-            imagem: 'assets/images/mandacaia.webp',
 
-            descricao:
-                'A Mandaçaia é uma abelha sem ferrão do gênero '
-                'Melipona. É conhecida pelas faixas claras no '
-                'abdômen e possui grande importância ecológica '
-                'como polinizadora.',
-          ),
+          
+          // JATAÍ
+          
 
-          // Card da espécie Iraí.
-          _criarCardAbelha(
-            context: context,
-            nome: 'Iraí',
-            nomeCientifico: 'Nannotrigona testaceicornis',
+          // Antes de criar o card da Jataí,
+          // verifica se ela combina com o que foi pesquisado.
+          if (_correspondePesquisa(
+            'Jataí',
+            'Tetragonisca angustula',
+          ))
+            // Se combinar, o card aparece.
+            _criarCardAbelha(
+              // Contexto atual da tela.
+              context: context,
 
-            // Caminho da imagem dentro do projeto.
-            imagem: 'assets/images/irai.webp',
+              // Nome popular.
+              nome: 'Jataí',
 
-            descricao:
-                'A Iraí é uma pequena abelha sem ferrão encontrada '
-                'em diferentes regiões do Brasil. Forma colônias '
-                'sociais e participa da polinização de diversas plantas.',
-          ),
+              // Nome científico.
+              nomeCientifico:
+                  'Tetragonisca angustula',
+
+              // Caminho da imagem.
+              imagem:
+                  'assets/images/jatai.webp',
+
+              // Texto mostrado na página de detalhes.
+              descricao:
+                  'A Jataí é uma abelha sem ferrão amplamente '
+                  'distribuída no Brasil. É conhecida pelo pequeno '
+                  'tamanho e pela importância na polinização.',
+            ),
+
+
+          
+          // MANDAÇAIA
+          
+
+          // Verifica se a Mandaçaia combina
+          // com aquilo que foi pesquisado.
+          if (_correspondePesquisa(
+            'Mandaçaia',
+            'Melipona quadrifasciata',
+          ))
+            // Se combinar, mostra o card.
+            _criarCardAbelha(
+              // Contexto atual.
+              context: context,
+
+              // Nome popular.
+              nome: 'Mandaçaia',
+
+              // Nome científico.
+              nomeCientifico:
+                  'Melipona quadrifasciata',
+
+              // Caminho da imagem.
+              imagem:
+                  'assets/images/mandacaia.webp',
+
+              // Descrição da espécie.
+              descricao:
+                  'A Mandaçaia é uma abelha sem ferrão do gênero '
+                  'Melipona. É conhecida pelas faixas claras no '
+                  'abdômen e possui grande importância ecológica '
+                  'como polinizadora.',
+            ),
+
+
+          
+          // IRAÍ
+         
+
+          // Verifica se a Iraí combina
+          // com aquilo que foi pesquisado.
+          if (_correspondePesquisa(
+            'Iraí',
+            'Nannotrigona testaceicornis',
+          ))
+            // Se combinar, mostra o card.
+            _criarCardAbelha(
+              // Contexto atual.
+              context: context,
+
+              // Nome popular.
+              nome: 'Iraí',
+
+              // Nome científico.
+              nomeCientifico:
+                  'Nannotrigona testaceicornis',
+
+              // Caminho da imagem.
+              imagem:
+                  'assets/images/irai.webp',
+
+              // Descrição da espécie.
+              descricao:
+                  'A Iraí é uma pequena abelha sem ferrão encontrada '
+                  'em diferentes regiões do Brasil. Forma colônias '
+                  'sociais e participa da polinização de diversas plantas.',
+            ),
         ],
       ),
     );
